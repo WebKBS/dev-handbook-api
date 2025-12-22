@@ -12,30 +12,11 @@ export const rateLimitMiddleware = rateLimiter({
     console.log("🚦 Rate Limiting Path:", path);
 
     /** 1) 인증 관련 (로그인 / 회원가입) */
-    if (
-      path.startsWith("/api/admin/auth") ||
-      path.startsWith("/api/service/auth")
-    ) {
-      return 10; // 1분 5회
-    }
-
-    // /** 2) 결제 요청 */
-    // if (path.startsWith("/payment")) {
-    //   return 10; // 1분 10회
-    // }
-    //
-    // /** 3) 장바구니 / 좋아요 / 주문 */
     // if (
-    //   path.startsWith("/cart") ||
-    //   path.startsWith("/order") ||
-    //   path.startsWith("/wishlist")
+    //   path.startsWith("/api/admin/auth") ||
+    //   path.startsWith("/api/service/auth")
     // ) {
-    //   return 100; // 1분 100회
-    // }
-    //
-    // /** 4) 상품 목록/상세 조회 */
-    // if (path.startsWith("/products") || path.startsWith("/items")) {
-    //   return 500; // 1분 500회
+    //   return 10; // 1분 5회
     // }
 
     /** 5) 그 외 기본 */
