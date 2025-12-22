@@ -1,6 +1,8 @@
 import { Hono } from "hono";
-import { envConfig } from "./config/env";
 import { logger } from "hono/logger";
+import { secureHeaders } from "hono/secure-headers";
+import { envConfig } from "./config/env";
+import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
 
 const app = new Hono();
 
@@ -9,6 +11,9 @@ app.use(
     console.log(message, ...rest);
   }),
 );
+
+app.use(secureHeaders());
+app.use("*", rateLimitMiddleware);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
