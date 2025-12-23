@@ -9,4 +9,5 @@ export const r2 = new S3Client({
     accessKeyId: envConfig.R2_ACCESS_KEY_ID,
     secretAccessKey: envConfig.R2_SECRET_ACCESS_KEY,
   },
+  forcePathStyle: true,
 });

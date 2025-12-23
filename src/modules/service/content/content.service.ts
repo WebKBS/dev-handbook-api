@@ -1,5 +1,4 @@
 import { r2Keys } from "@/lib/r2/r2.keys";
-import { getR2Json } from "@/lib/r2/r2.readers.ts";
 import { contentRepository } from "@/modules/service/content/content.repository.ts";
 
 export type ManifestItem = {
@@ -30,10 +29,7 @@ export type DomainManifest = {
 const norm = (s?: string) => (s ?? "").trim().toLowerCase();
 
 export const getRootManifestService = async () => {
-  console.log("key: ", r2Keys.rootManifest());
-
-  // return contentRepository.getJson<RootManifest>(r2Keys.rootManifest());
-  return getR2Json<RootManifest>(r2Keys.rootManifest());
+  return contentRepository.getJson<RootManifest>(r2Keys.rootManifest());
 };
 
 export const getDomainManifestService = async (domain: string) => {

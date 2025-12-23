@@ -68,5 +68,4 @@ export const createContentRepository = () => {
   return { getJson, getText };
 };
 
-// ✅ 모듈 싱글톤(repo가 캐시 보존)
 export const contentRepository = createContentRepository();
