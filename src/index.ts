@@ -1,4 +1,7 @@
+import serviceRoute from "@/modules/service/service.router.ts";
 import { AppError } from "@/utils/appError.ts";
+import { swaggerUI } from "@hono/swagger-ui";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
@@ -42,6 +45,31 @@ app.use(
     xFrameOptions: "DENY",
   }),
 );
+
+const serviceApp = new OpenAPIHono();
+serviceApp.route("/", serviceRoute);
+
+serviceApp.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
+  type: "http",
+  scheme: "bearer",
+});
+
+if (envConfig.NODE_ENV === "development") {
+  app.get("/docs/service", swaggerUI({ url: "/openapi/service" }));
+
+  app.get("/openapi/service", (c) => {
+    const doc = serviceApp.getOpenAPIDocument({
+      openapi: "3.1.0",
+      info: {
+        title: "Content Service API",
+        version: "1.0.0",
+        description: "R2 dev-content 기반 콘텐츠 API",
+      },
+      security: [{ Bearer: [] }],
+    });
+    return c.json(doc);
+  });
+}
 
 app.notFound((c) => c.json({ message: "Not Found" }, 404));
 
