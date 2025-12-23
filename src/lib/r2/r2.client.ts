@@ -1,4 +1,4 @@
-import { envConfig } from "@/config/env";
+import { envConfig } from "@/config/env.ts";
 import { S3Client } from "@aws-sdk/client-s3";
 
 /** R2 Client */

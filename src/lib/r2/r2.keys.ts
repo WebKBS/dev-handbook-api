@@ -1,4 +1,4 @@
-import { envConfig } from "@/config/env";
+import { envConfig } from "@/config/env.ts";
 
 const prefix = envConfig.R2_PREFIX;
 

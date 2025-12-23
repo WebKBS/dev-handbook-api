@@ -8,6 +8,7 @@
     "@hono/eslint-config": "^2.0.3",
     "hono": "^4.11.1",
     "hono-rate-limiter": "^0.5.1",
+    "lru-cache": "^11.2.4",
     "zod": "^4.2.1"
   },
   "devDependencies": {

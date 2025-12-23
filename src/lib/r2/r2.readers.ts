@@ -1,6 +1,6 @@
-import { envConfig } from "@/config/env";
+import { envConfig } from "@/config/env.ts";
 import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { r2 } from "./r2.client";
+import { r2 } from "src/lib/r2/r2.client.ts";
 
 /** R2 Readers
  *  - R2에서 객체를 읽어오는 유틸리티
@@ -39,5 +39,21 @@ export async function getR2Text(key: string) {
     new GetObjectCommand({ Bucket: envConfig.R2_BUCKET, Key: key }),
   );
   const text = await bodyToText(obj.Body);
-  return { text, contentType: obj.ContentType };
+  return {
+    text,
+    etag: obj.ETag?.replaceAll('"', ""),
+    lastModified: obj.LastModified?.toISOString(),
+    contentType: obj.ContentType,
+  };
 }
+
+/** R2에서 JSON 객체를 가져오기 */
+export const getR2Json = async <T>(key: string) => {
+  const { text, etag, lastModified, contentType } = await getR2Text(key);
+  return {
+    value: JSON.parse(text) as T,
+    etag,
+    lastModified,
+    contentType,
+  };
+};
