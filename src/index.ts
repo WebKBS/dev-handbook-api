@@ -1,3 +1,4 @@
+import serviceRouter from "@/modules/service/service.router.ts";
 import serviceRoute from "@/modules/service/service.router.ts";
 import { AppError } from "@/utils/appError.ts";
 import { swaggerUI } from "@hono/swagger-ui";
@@ -39,6 +40,7 @@ app.use(
 
 /** 라우터 등록 */
 app.route("/health", healthRoute);
+app.route("/", serviceRouter);
 
 app.use(
   secureHeaders({

@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 const envConfigSchema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z.coerce.number().default(8000),
 
   // CORS
@@ -13,7 +15,6 @@ const envConfigSchema = z.object({
   R2_BUCKET: z.string().min(1),
   R2_ACCESS_KEY_ID: z.string().min(1),
   R2_SECRET_ACCESS_KEY: z.string().min(1),
-  R2_PREFIX: z.string().default("dev-content"),
 
   // optional
   CDN_BASE_URL: z.url().optional(),

@@ -38,7 +38,11 @@ export async function getR2Text(key: string) {
   const obj = await r2.send(
     new GetObjectCommand({ Bucket: envConfig.R2_BUCKET, Key: key }),
   );
+
+  // console.log("Fetched R2 object:", obj);
+
   const text = await bodyToText(obj.Body);
+
   return {
     text,
     etag: obj.ETag?.replaceAll('"', ""),
@@ -50,6 +54,7 @@ export async function getR2Text(key: string) {
 /** R2에서 JSON 객체를 가져오기 */
 export const getR2Json = async <T>(key: string) => {
   const { text, etag, lastModified, contentType } = await getR2Text(key);
+
   return {
     value: JSON.parse(text) as T,
     etag,
