@@ -1,8 +1,11 @@
+import { AppError } from "@/utils/appError.ts";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import healthRoute from "src/common/routes/health.route";
+import { z } from "zod";
 import { envConfig } from "./config/env";
 import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
 
@@ -40,8 +43,28 @@ app.use(
   }),
 );
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
+app.notFound((c) => c.json({ message: "Not Found" }, 404));
+
+app.onError((error, c) => {
+  console.error("🔥 Error occurred:", error);
+
+  if (error instanceof z.ZodError) {
+    console.error(error);
+    return c.json(
+      { message: error.issues.map((issue) => issue.message).join(", ") },
+      400,
+    );
+  }
+
+  if (error instanceof AppError) {
+    return c.json({ message: error.message }, { status: error.status });
+  }
+
+  if (error instanceof HTTPException) {
+    return c.json({ message: error.message }, { status: error.status });
+  }
+
+  return c.json({ error: "Internal Server Error" }, 500);
 });
 
 export default {
