@@ -28,7 +28,7 @@ app.use(
   cors({
     origin: (origin) => {
       const whitelist = [
-        envConfig.ADMIN_CORS_ORIGIN,
+        // envConfig.ADMIN_CORS_ORIGIN,
         envConfig.SERVICE_CORS_ORIGIN,
       ];
       return whitelist.includes(origin) ? origin : "";
@@ -38,16 +38,17 @@ app.use(
   }),
 );
 
-/** 라우터 등록 */
-app.route("/health", healthRoute);
-app.route("/", serviceRouter);
-
 app.use(
   secureHeaders({
     xFrameOptions: "DENY",
   }),
 );
 
+/** 라우터 등록 */
+app.route("/health", healthRoute);
+app.route("/", serviceRouter);
+
+/** Swagger OpenAPI - 분리된 인스턴스 사용 */
 const serviceApp = new OpenAPIHono();
 serviceApp.route("/", serviceRoute);
 

@@ -7,7 +7,7 @@ const envConfigSchema = z.object({
   PORT: z.coerce.number().default(8000),
 
   // CORS
-  ADMIN_CORS_ORIGIN: z.string().default(""),
+  // ADMIN_CORS_ORIGIN: z.string().default(""),
   SERVICE_CORS_ORIGIN: z.string().default(""),
 
   // R2

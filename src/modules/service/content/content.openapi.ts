@@ -1,3 +1,4 @@
+import { createErrorResponses } from "@/common/error/error-response.ts";
 import { createRoute } from "@hono/zod-openapi";
 import {
   domainManifestSchema,
@@ -10,6 +11,8 @@ import {
   rootManifestSchema,
 } from "./content.dto.ts";
 
+const errorResponses = createErrorResponses();
+
 export const getRootManifestRoute = createRoute({
   method: "get",
   path: "/manifest",
@@ -21,6 +24,7 @@ export const getRootManifestRoute = createRoute({
       content: { "application/json": { schema: rootManifestSchema } },
     },
   },
+  ...errorResponses,
 });
 
 export const getDomainsRoute = createRoute({
@@ -34,6 +38,7 @@ export const getDomainsRoute = createRoute({
       content: { "application/json": { schema: domainsResponseSchema } },
     },
   },
+  ...errorResponses,
 });
 
 export const getDomainManifestRoute = createRoute({
@@ -49,6 +54,7 @@ export const getDomainManifestRoute = createRoute({
     },
     404: { description: "Not Found" },
   },
+  ...errorResponses,
 });
 
 export const listPostsRoute = createRoute({
@@ -63,6 +69,7 @@ export const listPostsRoute = createRoute({
       content: { "application/json": { schema: listPostsResponseSchema } },
     },
   },
+  ...errorResponses,
 });
 
 export const getPostRoute = createRoute({
@@ -80,4 +87,5 @@ export const getPostRoute = createRoute({
     },
     404: { description: "Not Found" },
   },
+  ...errorResponses,
 });

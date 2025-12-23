@@ -1,12 +1,14 @@
-import { createEtagCache } from "@/lib/cache/etag-cache";
 import type { Cached } from "@/lib/cache/etag-cache";
+import { createEtagCache } from "@/lib/cache/etag-cache";
 import { getR2Text, headR2 } from "@/lib/r2/r2.readers";
 
 export const createContentRepository = () => {
   // manifest는 자주 읽힘 → 적당히 많이/짧게
+  // 시간: 1분
   const jsonCache = createEtagCache<unknown>({ max: 300, ttlMs: 60_000 });
 
   // md는 조금 더 길게
+  // 시간: 5분
   const textCache = createEtagCache<string>({ max: 2000, ttlMs: 5 * 60_000 });
 
   const getJson = async <T>(key: string): Promise<Cached<T>> => {

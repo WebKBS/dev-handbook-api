@@ -4,7 +4,6 @@ import type {
   DomainManifest,
   DomainsResponse,
   ListPostsResponse,
-  ManifestItem,
   PostDetail,
   RootManifest,
 } from "./content.dto.ts";
@@ -124,14 +123,11 @@ export const listPostsService = async (params: {
 export const getPostDetailService = async (
   domain: string,
   slug: string,
-): Promise<
-  | {
-      etag?: string;
-      lastModified?: string;
-      value: PostDetail;
-    }
-  | null
-> => {
+): Promise<{
+  etag?: string;
+  lastModified?: string;
+  value: PostDetail;
+} | null> => {
   const root = await getRootManifestService();
   const meta = root.value.items.find(
     (it) => it.domain === domain && it.slug === slug,
