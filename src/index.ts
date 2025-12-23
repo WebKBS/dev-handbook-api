@@ -34,7 +34,6 @@ app.use(
       return whitelist.includes(origin) ? origin : "";
     },
     allowMethods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
   }),
 );
 

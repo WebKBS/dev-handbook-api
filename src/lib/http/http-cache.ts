@@ -12,5 +12,17 @@ export const setHttpCache = (
 export const matchIfNoneMatch = (c: Context, etag?: string) => {
   if (!etag) return false;
   const inm = c.req.header("if-none-match");
-  return inm?.replaceAll('"', "") === etag;
+  if (!inm) return false;
+  const normalize = (v: string) => v.replace(/^W\//, "").replace(/"/g, "");
+  return normalize(inm) === normalize(etag);
+};
+
+export const matchIfModifiedSince = (c: Context, lastModified?: string) => {
+  if (!lastModified) return false;
+  const ims = c.req.header("if-modified-since");
+  if (!ims) return false;
+  const sinceMs = Date.parse(ims);
+  const lastMs = Date.parse(lastModified);
+  if (Number.isNaN(sinceMs) || Number.isNaN(lastMs)) return false;
+  return lastMs <= sinceMs;
 };

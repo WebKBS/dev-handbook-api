@@ -23,6 +23,7 @@ export const getRootManifestRoute = createRoute({
       description: "OK",
       content: { "application/json": { schema: rootManifestSchema } },
     },
+    304: { description: "Not Modified" },
   },
   ...errorResponses,
 });
@@ -37,6 +38,7 @@ export const getDomainsRoute = createRoute({
       description: "OK",
       content: { "application/json": { schema: domainsResponseSchema } },
     },
+    304: { description: "Not Modified" },
   },
   ...errorResponses,
 });
@@ -52,6 +54,7 @@ export const getDomainManifestRoute = createRoute({
       description: "OK",
       content: { "application/json": { schema: domainManifestSchema } },
     },
+    304: { description: "Not Modified" },
     404: { description: "Not Found" },
   },
   ...errorResponses,
@@ -68,6 +71,7 @@ export const listPostsRoute = createRoute({
       description: "OK",
       content: { "application/json": { schema: listPostsResponseSchema } },
     },
+    304: { description: "Not Modified" },
   },
   ...errorResponses,
 });
@@ -85,6 +89,7 @@ export const getPostRoute = createRoute({
       description: "OK",
       content: { "application/json": { schema: postDetailSchema } },
     },
+    304: { description: "Not Modified" },
     404: { description: "Not Found" },
   },
   ...errorResponses,

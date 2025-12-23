@@ -1,5 +1,10 @@
-import type { Context } from "hono";
+import {
+  matchIfModifiedSince,
+  matchIfNoneMatch,
+  setHttpCache,
+} from "@/lib/http/http-cache.ts";
 import type { RouteHandler } from "@hono/zod-openapi";
+import type { Context } from "hono";
 import {
   getDomainManifestRoute,
   getDomainsRoute,
@@ -15,22 +20,27 @@ import {
   listPostsService,
 } from "./content.service";
 
-const attachMetaHeaders = (
+const respondIfNotModified = (
   c: Context,
   etag?: string,
   lastModified?: string,
 ) => {
-  if (etag) c.header("ETag", etag);
-  if (lastModified) c.header("Last-Modified", lastModified);
-  // 서버 캐시는 안 하지만, 원하면 클라 캐시는 가능 (원치 않으면 이 줄 삭제)
-  // c.header("Cache-Control", "public, max-age=60");
+  if (matchIfNoneMatch(c, etag)) return c.body(null, 304);
+  if (matchIfModifiedSince(c, lastModified)) return c.body(null, 304);
+  return null;
 };
 
 export const getRootManifestController: RouteHandler<
   typeof getRootManifestRoute
 > = async (c) => {
   const data = await getRootManifestService();
-  attachMetaHeaders(c, data.etag, data.lastModified);
+  setHttpCache(c, {
+    etag: data.etag,
+    lastModified: data.lastModified,
+    cacheControl: "public, max-age=60",
+  });
+  const notModified = respondIfNotModified(c, data.etag, data.lastModified);
+  if (notModified) return notModified;
   return c.json(data.value, 200);
 };
 
@@ -38,7 +48,13 @@ export const getDomainsController: RouteHandler<
   typeof getDomainsRoute
 > = async (c) => {
   const data = await getDomainsService();
-  attachMetaHeaders(c, data.etag, data.lastModified);
+  setHttpCache(c, {
+    etag: data.etag,
+    lastModified: data.lastModified,
+    cacheControl: "public, max-age=60",
+  });
+  const notModified = respondIfNotModified(c, data.etag, data.lastModified);
+  if (notModified) return notModified;
   return c.json(data.value, 200);
 };
 
@@ -47,7 +63,13 @@ export const getDomainManifestController: RouteHandler<
 > = async (c) => {
   const { domain } = c.req.valid("param");
   const data = await getDomainManifestService(domain);
-  attachMetaHeaders(c, data.etag, data.lastModified);
+  setHttpCache(c, {
+    etag: data.etag,
+    lastModified: data.lastModified,
+    cacheControl: "public, max-age=60",
+  });
+  const notModified = respondIfNotModified(c, data.etag, data.lastModified);
+  if (notModified) return notModified;
   return c.json(data.value, 200);
 };
 
@@ -69,7 +91,13 @@ export const listPostsController: RouteHandler<typeof listPostsRoute> = async (
     pageSize: q.pageSize,
   });
 
-  attachMetaHeaders(c, data.etag, data.lastModified);
+  setHttpCache(c, {
+    etag: data.etag,
+    lastModified: data.lastModified,
+    cacheControl: "public, max-age=60",
+  });
+  const notModified = respondIfNotModified(c, data.etag, data.lastModified);
+  if (notModified) return notModified;
   return c.json(data.value, 200);
 };
 
@@ -80,6 +108,12 @@ export const getPostController: RouteHandler<typeof getPostRoute> = async (
   const data = await getPostDetailService(domain, slug);
   if (!data) return c.json({ message: "Not Found" }, 404);
 
-  attachMetaHeaders(c, data.etag, data.lastModified);
+  setHttpCache(c, {
+    etag: data.etag,
+    lastModified: data.lastModified,
+    cacheControl: "public, max-age=300",
+  });
+  const notModified = respondIfNotModified(c, data.etag, data.lastModified);
+  if (notModified) return notModified;
   return c.json(data.value, 200);
 };

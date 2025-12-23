@@ -1,5 +1,9 @@
 import { envConfig } from "@/config/env.ts";
-import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  HeadObjectCommand,
+  type GetObjectCommandOutput,
+} from "@aws-sdk/client-s3";
 import { r2 } from "src/lib/r2/r2.client.ts";
 
 /** R2 Readers
@@ -18,7 +22,7 @@ export async function headR2(key: string) {
 }
 
 /** R2 Body를 텍스트로 변환 */
-async function bodyToText(body: any): Promise<string> {
+async function bodyToText(body: GetObjectCommandOutput["Body"]): Promise<string> {
   // Bun 환경에서 종종 transformToString 지원
   if (typeof body?.transformToString === "function")
     return body.transformToString();
