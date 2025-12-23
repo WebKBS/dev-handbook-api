@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
+import healthRoute from "src/common/routes/health.route";
 import { envConfig } from "./config/env";
 import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
 
@@ -29,6 +30,9 @@ app.use(
     credentials: true,
   }),
 );
+
+/** 라우터 등록 */
+app.route("/health", healthRoute);
 
 app.use(
   secureHeaders({
