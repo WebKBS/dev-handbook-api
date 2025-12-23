@@ -5,6 +5,8 @@ import { getConnInfo } from "hono/bun";
 export const rateLimitMiddleware = rateLimiter({
   // 기본 윈도우 (1분)
   windowMs: 60_000,
+  // 헤더는 별도로 노출하지 않음 (RateLimit-* 제거)
+  standardHeaders: false,
 
   // 경로별 동적 limit 지정
   limit: (c: Context) => {
