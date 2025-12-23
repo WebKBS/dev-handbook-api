@@ -1,3 +1,4 @@
+import type { Context } from "hono";
 import type { RouteHandler } from "@hono/zod-openapi";
 import {
   getDomainManifestRoute,
@@ -14,7 +15,11 @@ import {
   listPostsService,
 } from "./content.service";
 
-const attachMetaHeaders = (c: any, etag?: string, lastModified?: string) => {
+const attachMetaHeaders = (
+  c: Context,
+  etag?: string,
+  lastModified?: string,
+) => {
   if (etag) c.header("ETag", etag);
   if (lastModified) c.header("Last-Modified", lastModified);
   // 서버 캐시는 안 하지만, 원하면 클라 캐시는 가능 (원치 않으면 이 줄 삭제)

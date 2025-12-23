@@ -1,30 +1,13 @@
 import { r2Keys } from "@/lib/r2/r2.keys";
 import { contentRepository } from "@/modules/service/content/content.repository.ts";
-
-export type ManifestItem = {
-  id: string;
-  domain: string;
-  slug: string;
-  title?: string;
-  description?: string;
-  tags?: string[];
-  updatedAt?: string;
-  coverImage?: string;
-  order?: number;
-};
-
-export type RootManifest = {
-  version: number;
-  generatedAt: string;
-  items: ManifestItem[];
-};
-
-export type DomainManifest = {
-  version: number;
-  generatedAt: string;
-  domain: string;
-  items: ManifestItem[];
-};
+import type {
+  DomainManifest,
+  DomainsResponse,
+  ListPostsResponse,
+  ManifestItem,
+  PostDetail,
+  RootManifest,
+} from "./content.dto.ts";
 
 const norm = (s?: string) => (s ?? "").trim().toLowerCase();
 
@@ -38,7 +21,11 @@ export const getDomainManifestService = async (domain: string) => {
   );
 };
 
-export const getDomainsService = async () => {
+export const getDomainsService = async (): Promise<{
+  etag?: string;
+  lastModified?: string;
+  value: DomainsResponse;
+}> => {
   const root = await getRootManifestService();
   const map = new Map<
     string,
@@ -62,7 +49,7 @@ export const getDomainsService = async () => {
     lastModified: root.lastModified,
     value: {
       items: [...map.values()].sort((a, b) => a.domain.localeCompare(b.domain)),
-    },
+    } satisfies DomainsResponse,
   };
 };
 
@@ -73,7 +60,11 @@ export const listPostsService = async (params: {
   sort?: "updatedAt_desc" | "order_asc";
   page: number;
   pageSize: number;
-}) => {
+}): Promise<{
+  etag?: string;
+  lastModified?: string;
+  value: ListPostsResponse;
+}> => {
   const root = await getRootManifestService();
   const q = norm(params.q);
   const tagSet = new Set((params.tags ?? []).map(norm));
@@ -130,7 +121,17 @@ export const listPostsService = async (params: {
   };
 };
 
-export const getPostDetailService = async (domain: string, slug: string) => {
+export const getPostDetailService = async (
+  domain: string,
+  slug: string,
+): Promise<
+  | {
+      etag?: string;
+      lastModified?: string;
+      value: PostDetail;
+    }
+  | null
+> => {
   const root = await getRootManifestService();
   const meta = root.value.items.find(
     (it) => it.domain === domain && it.slug === slug,

@@ -1,5 +1,14 @@
-import { z } from "zod";
 import { createRoute } from "@hono/zod-openapi";
+import {
+  domainManifestSchema,
+  domainParamSchema,
+  domainsResponseSchema,
+  listPostsQuerySchema,
+  listPostsResponseSchema,
+  postDetailSchema,
+  postParamsSchema,
+  rootManifestSchema,
+} from "./content.dto.ts";
 
 export const getRootManifestRoute = createRoute({
   method: "get",
@@ -9,7 +18,7 @@ export const getRootManifestRoute = createRoute({
   responses: {
     200: {
       description: "OK",
-      content: { "application/json": { schema: z.any() } },
+      content: { "application/json": { schema: rootManifestSchema } },
     },
   },
 });
@@ -22,7 +31,7 @@ export const getDomainsRoute = createRoute({
   responses: {
     200: {
       description: "OK",
-      content: { "application/json": { schema: z.any() } },
+      content: { "application/json": { schema: domainsResponseSchema } },
     },
   },
 });
@@ -32,11 +41,11 @@ export const getDomainManifestRoute = createRoute({
   path: "/domains/{domain}/manifest",
   tags: ["Content"],
   summary: "도메인 manifest 조회",
-  request: { params: z.object({ domain: z.string().min(1) }) },
+  request: { params: domainParamSchema },
   responses: {
     200: {
       description: "OK",
-      content: { "application/json": { schema: z.any() } },
+      content: { "application/json": { schema: domainManifestSchema } },
     },
     404: { description: "Not Found" },
   },
@@ -47,20 +56,11 @@ export const listPostsRoute = createRoute({
   path: "/posts",
   tags: ["Content"],
   summary: "게시글 리스트/검색",
-  request: {
-    query: z.object({
-      domain: z.string().optional(),
-      q: z.string().optional(),
-      tags: z.string().optional(), // "html,markup"
-      sort: z.enum(["updatedAt_desc", "order_asc"]).optional(),
-      page: z.coerce.number().int().min(1).default(1),
-      pageSize: z.coerce.number().int().min(1).max(100).default(20),
-    }),
-  },
+  request: { query: listPostsQuerySchema },
   responses: {
     200: {
       description: "OK",
-      content: { "application/json": { schema: z.any() } },
+      content: { "application/json": { schema: listPostsResponseSchema } },
     },
   },
 });
@@ -71,12 +71,12 @@ export const getPostRoute = createRoute({
   tags: ["Content"],
   summary: "게시글 상세(md 포함)",
   request: {
-    params: z.object({ domain: z.string().min(1), slug: z.string().min(1) }),
+    params: postParamsSchema,
   },
   responses: {
     200: {
       description: "OK",
-      content: { "application/json": { schema: z.any() } },
+      content: { "application/json": { schema: postDetailSchema } },
     },
     404: { description: "Not Found" },
   },
