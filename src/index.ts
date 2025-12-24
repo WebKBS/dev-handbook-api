@@ -47,16 +47,15 @@ app.use(
 app.route("/health", healthRoute);
 app.route("/", serviceRouter);
 
-/** Swagger OpenAPI - 분리된 인스턴스 사용 */
-const serviceApp = new OpenAPIHono();
-serviceApp.route("/", serviceRoute);
-
-serviceApp.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
-  type: "http",
-  scheme: "bearer",
-});
-
 if (envConfig.NODE_ENV === "development") {
+  /** Swagger OpenAPI - 분리된 인스턴스 사용 */
+  const serviceApp = new OpenAPIHono();
+  serviceApp.route("/", serviceRoute);
+
+  serviceApp.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
+    type: "http",
+    scheme: "bearer",
+  });
   app.get("/docs/service", swaggerUI({ url: "/openapi/service" }));
 
   app.get("/openapi/service", (c) => {

@@ -13,6 +13,7 @@ import {
 
 const errorResponses = createErrorResponses();
 
+/** 루트 매니페스트 조회 */
 export const getRootManifestRoute = createRoute({
   method: "get",
   path: "/manifest",
@@ -28,6 +29,7 @@ export const getRootManifestRoute = createRoute({
   ...errorResponses,
 });
 
+/** 도메인 목록 조회 */
 export const getDomainsRoute = createRoute({
   method: "get",
   path: "/domains",
@@ -43,6 +45,7 @@ export const getDomainsRoute = createRoute({
   ...errorResponses,
 });
 
+/** 도메인 매니페스트 조회 */
 export const getDomainManifestRoute = createRoute({
   method: "get",
   path: "/domains/{domain}/manifest",
@@ -60,6 +63,7 @@ export const getDomainManifestRoute = createRoute({
   ...errorResponses,
 });
 
+/** 게시글 리스트/검색 */
 export const listPostsRoute = createRoute({
   method: "get",
   path: "/posts",
@@ -76,6 +80,7 @@ export const listPostsRoute = createRoute({
   ...errorResponses,
 });
 
+/** 게시글 상세(md 포함) */
 export const getPostRoute = createRoute({
   method: "get",
   path: "/posts/{domain}/{slug}",

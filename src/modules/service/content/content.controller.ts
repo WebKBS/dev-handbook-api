@@ -20,6 +20,7 @@ import {
   listPostsService,
 } from "./content.service";
 
+/** 클라이언트 캐시와 비교하여 수정되지 않았으면 304 응답 반환 */
 const respondIfNotModified = (
   c: Context,
   etag?: string,
@@ -30,6 +31,7 @@ const respondIfNotModified = (
   return null;
 };
 
+/** 루트 매니페스트 조회 */
 export const getRootManifestController: RouteHandler<
   typeof getRootManifestRoute
 > = async (c) => {
@@ -44,6 +46,7 @@ export const getRootManifestController: RouteHandler<
   return c.json(data.value, 200);
 };
 
+/** 도메인 목록 조회 */
 export const getDomainsController: RouteHandler<
   typeof getDomainsRoute
 > = async (c) => {
@@ -58,6 +61,7 @@ export const getDomainsController: RouteHandler<
   return c.json(data.value, 200);
 };
 
+/** 도메인 매니페스트 조회 */
 export const getDomainManifestController: RouteHandler<
   typeof getDomainManifestRoute
 > = async (c) => {
@@ -73,6 +77,7 @@ export const getDomainManifestController: RouteHandler<
   return c.json(data.value, 200);
 };
 
+/** 게시글 리스트/검색 */
 export const listPostsController: RouteHandler<typeof listPostsRoute> = async (
   c,
 ) => {
@@ -101,6 +106,7 @@ export const listPostsController: RouteHandler<typeof listPostsRoute> = async (
   return c.json(data.value, 200);
 };
 
+/** 게시글 상세 조회 */
 export const getPostController: RouteHandler<typeof getPostRoute> = async (
   c,
 ) => {

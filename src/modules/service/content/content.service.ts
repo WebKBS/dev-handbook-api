@@ -8,18 +8,22 @@ import type {
   RootManifest,
 } from "./content.dto.ts";
 
+// 문자열 정규화 (대소문자 무시, 앞뒤 공백 제거)
 const norm = (s?: string) => (s ?? "").trim().toLowerCase();
 
+/** 루트 매니페스트 조회 */
 export const getRootManifestService = async () => {
   return contentRepository.getJson<RootManifest>(r2Keys.rootManifest());
 };
 
+/** 도메인 매니페스트 조회 */
 export const getDomainManifestService = async (domain: string) => {
   return contentRepository.getJson<DomainManifest>(
     r2Keys.domainManifest(domain),
   );
 };
 
+/** 도메인 목록 조회 */
 export const getDomainsService = async (): Promise<{
   etag?: string;
   lastModified?: string;
@@ -52,6 +56,7 @@ export const getDomainsService = async (): Promise<{
   };
 };
 
+/** 게시글 리스트/검색 */
 export const listPostsService = async (params: {
   domain?: string;
   q?: string;
@@ -69,14 +74,17 @@ export const listPostsService = async (params: {
   const tagSet = new Set((params.tags ?? []).map(norm));
   let items = root.value.items;
 
+  // 도메인이 지정된 경우 필터링
   if (params.domain) items = items.filter((it) => it.domain === params.domain);
 
+  // 태그가 지정된 경우 필터링
   if (tagSet.size > 0) {
     items = items.filter((it) =>
       (it.tags ?? []).some((t) => tagSet.has(norm(t))),
     );
   }
 
+  // 검색어가 지정된 경우 필터링
   if (q) {
     items = items.filter((it) => {
       const hay = [
@@ -93,6 +101,7 @@ export const listPostsService = async (params: {
     });
   }
 
+  // 정렬
   const sort = params.sort ?? "order_asc";
   if (sort === "updatedAt_desc") {
     items = [...items].sort((a, b) =>
@@ -120,6 +129,7 @@ export const listPostsService = async (params: {
   };
 };
 
+/** 게시글 상세 조회 */
 export const getPostDetailService = async (
   domain: string,
   slug: string,
