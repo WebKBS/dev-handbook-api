@@ -1,8 +1,10 @@
+import { initSentry } from "@/config/sentry.ts";
 import serviceRouter from "@/modules/service/service.router.ts";
 import serviceRoute from "@/modules/service/service.router.ts";
 import { AppError } from "@/utils/appError.ts";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import * as Sentry from "@sentry/bun";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
@@ -12,6 +14,8 @@ import healthRoute from "src/common/routes/health.route";
 import { z } from "zod";
 import { envConfig } from "./config/env";
 import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
+
+initSentry();
 
 const app = new Hono();
 
@@ -76,6 +80,18 @@ app.notFound((c) => c.json({ message: "Not Found" }, 404));
 
 app.onError((error, c) => {
   console.error("🔥 Error occurred:", error);
+
+  /* Sentry 에러 로깅 */
+  Sentry.captureException(error, {
+    tags: {
+      layer: "http",
+      route: c.req.path, // Hono 4.x는 c.req.path 또는 c.req.url로
+    },
+    extra: {
+      method: c.req.method,
+      url: c.req.url,
+    },
+  });
 
   if (error instanceof z.ZodError) {
     console.error(error);
