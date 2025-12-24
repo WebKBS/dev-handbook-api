@@ -1,0 +1,68 @@
+import { envConfig } from "@/config/env.ts";
+import {
+  GetObjectCommand,
+  HeadObjectCommand,
+  type GetObjectCommandOutput,
+} from "@aws-sdk/client-s3";
+import { r2 } from "src/lib/r2/r2.client.ts";
+
+/** R2 Readers
+ *  - R2에서 객체를 읽어오는 유틸리티
+ */
+export async function headR2(key: string) {
+  const head = await r2.send(
+    new HeadObjectCommand({ Bucket: envConfig.R2_BUCKET, Key: key }),
+  );
+  return {
+    etag: head.ETag?.replaceAll('"', ""),
+    lastModified: head.LastModified?.toISOString(),
+    contentType: head.ContentType,
+    contentLength: head.ContentLength,
+  };
+}
+
+/** R2 Body를 텍스트로 변환 */
+async function bodyToText(body: GetObjectCommandOutput["Body"]): Promise<string> {
+  // Bun 환경에서 종종 transformToString 지원
+  if (typeof body?.transformToString === "function")
+    return body.transformToString();
+  if (body instanceof Uint8Array) return new TextDecoder().decode(body);
+
+  // Node/Bun stream fallback
+  return await new Promise<string>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    body.on("data", (c: Buffer) => chunks.push(c));
+    body.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+    body.on("error", reject);
+  });
+}
+
+/** R2에서 텍스트 객체를 가져오기 */
+export async function getR2Text(key: string) {
+  const obj = await r2.send(
+    new GetObjectCommand({ Bucket: envConfig.R2_BUCKET, Key: key }),
+  );
+
+  // console.log("Fetched R2 object:", obj);
+
+  const text = await bodyToText(obj.Body);
+
+  return {
+    text,
+    etag: obj.ETag?.replaceAll('"', ""),
+    lastModified: obj.LastModified?.toISOString(),
+    contentType: obj.ContentType,
+  };
+}
+
+/** R2에서 JSON 객체를 가져오기 */
+export const getR2Json = async <T>(key: string) => {
+  const { text, etag, lastModified, contentType } = await getR2Text(key);
+
+  return {
+    value: JSON.parse(text) as T,
+    etag,
+    lastModified,
+    contentType,
+  };
+};
