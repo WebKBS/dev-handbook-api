@@ -32,7 +32,7 @@ export const getDomainsService = async (): Promise<{
   const root = await getRootManifestService();
   const map = new Map<
     string,
-    { domain: string; count: number; latestUpdatedAt?: string }
+    { domain: string; count: number; latestUpdatedAt?: string; image: string }
   >();
 
   for (const it of root.value.items) {
@@ -40,7 +40,9 @@ export const getDomainsService = async (): Promise<{
       domain: it.domain,
       count: 0,
       latestUpdatedAt: undefined,
+      image: it.coverImage ?? "",
     };
+
     cur.count += 1;
     if (!cur.latestUpdatedAt || (it.updatedAt ?? "") > cur.latestUpdatedAt)
       cur.latestUpdatedAt = it.updatedAt;
@@ -51,7 +53,16 @@ export const getDomainsService = async (): Promise<{
     etag: root.etag,
     lastModified: root.lastModified,
     value: {
-      items: [...map.values()].sort((a, b) => a.domain.localeCompare(b.domain)),
+      items: [...map.values()].sort((a, b) => {
+        // html, css, js, ts, react, deno, nodejs, 기타 순으로 정렬
+        const order = ["html", "css", "javascript", "typescript", "react"];
+        const aIndex = order.indexOf(a.domain.toLowerCase());
+        const bIndex = order.indexOf(b.domain.toLowerCase());
+        const aOrder = aIndex >= 0 ? aIndex : order.length;
+        const bOrder = bIndex >= 0 ? bIndex : order.length;
+
+        return aOrder - bOrder;
+      }),
     } satisfies DomainsResponse,
   };
 };
