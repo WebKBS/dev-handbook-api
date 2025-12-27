@@ -29,6 +29,7 @@ export const domainStatsSchema = z.object({
   domain: z.string(),
   count: z.number(),
   latestUpdatedAt: z.string().optional(),
+  image: z.string(),
 });
 
 export const domainsResponseSchema = z.object({

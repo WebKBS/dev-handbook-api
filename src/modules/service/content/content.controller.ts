@@ -35,6 +35,9 @@ const respondIfNotModified = (
 export const getRootManifestController: RouteHandler<
   typeof getRootManifestRoute
 > = async (c) => {
+  // await new Promise((resolve) => setTimeout(resolve, 10000)); // 인위적 지연 추가
+  // throw new Error("Method not implemented.");
+
   const data = await getRootManifestService();
   setHttpCache(c, {
     etag: data.etag,
@@ -50,7 +53,10 @@ export const getRootManifestController: RouteHandler<
 export const getDomainsController: RouteHandler<
   typeof getDomainsRoute
 > = async (c) => {
+  // await new Promise((resolve) => setTimeout(resolve, 4000)); // 인위적 지연 추가
+  // throw new Error("Method not implemented.");
   const data = await getDomainsService();
+
   setHttpCache(c, {
     etag: data.etag,
     lastModified: data.lastModified,
