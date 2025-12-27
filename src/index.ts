@@ -114,5 +114,6 @@ app.onError((error, c) => {
 
 export default {
   port: envConfig.PORT || 8000,
+  hostname: envConfig.HOST,
   fetch: app.fetch,
 };

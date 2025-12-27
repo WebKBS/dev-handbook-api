@@ -5,6 +5,7 @@ const envConfigSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   PORT: z.coerce.number().default(8000),
+  HOST: z.string(),
 
   // CORS
   // ADMIN_CORS_ORIGIN: z.string().default(""),
