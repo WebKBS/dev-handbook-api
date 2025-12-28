@@ -155,7 +155,7 @@ export const getPostDetailService = async (
   );
   if (!meta) return null;
 
-  const md = await contentRepository.getText(r2Keys.post(domain, slug));
+  const md = await contentRepository.getMarkdown(r2Keys.post(domain, slug));
 
   // 상세는 md의 ETag를 쓰는 게 가장 정확 (본문이 바뀌면 ETag 바뀜)
   return {

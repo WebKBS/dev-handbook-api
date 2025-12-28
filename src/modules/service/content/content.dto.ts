@@ -4,12 +4,13 @@ export const manifestItemSchema = z.object({
   id: z.string(),
   domain: z.string(),
   slug: z.string(),
-  title: z.string().optional(),
+  title: z.string(),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   updatedAt: z.string().optional(),
   coverImage: z.string().optional(),
-  order: z.number().optional(),
+  order: z.number(),
+  level: z.number(),
 });
 
 export const rootManifestSchema = z.object({
