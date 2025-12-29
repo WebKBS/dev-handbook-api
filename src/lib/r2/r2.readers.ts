@@ -1,8 +1,8 @@
 import { envConfig } from "@/config/env.ts";
 import {
   GetObjectCommand,
-  HeadObjectCommand,
   type GetObjectCommandOutput,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import { r2 } from "src/lib/r2/r2.client.ts";
 
@@ -22,21 +22,57 @@ export async function headR2(key: string) {
 }
 
 /** R2 Body를 텍스트로 변환 */
-async function bodyToText(body: GetObjectCommandOutput["Body"]): Promise<string> {
+async function bodyToText(
+  body: GetObjectCommandOutput["Body"],
+): Promise<string> {
+  if (body == null) return "";
+
+  const anyBody = body as any;
+
   // Bun 환경에서 종종 transformToString 지원
-  if (typeof body?.transformToString === "function")
-    return body.transformToString();
+  if (typeof anyBody.transformToString === "function")
+    return anyBody.transformToString();
+
+  if (typeof anyBody === "string") return anyBody;
   if (body instanceof Uint8Array) return new TextDecoder().decode(body);
 
-  // Node/Bun stream fallback
-  return await new Promise<string>((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    body.on("data", (c: Buffer) => chunks.push(c));
-    body.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
-    body.on("error", reject);
-  });
-}
+  // Blob-like (has arrayBuffer)
+  if (typeof anyBody.arrayBuffer === "function") {
+    const ab = await anyBody.arrayBuffer();
+    return new TextDecoder().decode(new Uint8Array(ab));
+  }
 
+  // Web ReadableStream
+  if (typeof anyBody.getReader === "function") {
+    const reader = anyBody.getReader();
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) chunks.push(value);
+    }
+    const total = chunks.reduce((sum, c) => sum + c.length, 0);
+    const merged = new Uint8Array(total);
+    let offset = 0;
+    for (const c of chunks) {
+      merged.set(c, offset);
+      offset += c.length;
+    }
+    return new TextDecoder().decode(merged);
+  }
+
+  // Node.js Readable stream
+  if (typeof anyBody.on === "function") {
+    return await new Promise<string>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      anyBody.on("data", (c: Buffer) => chunks.push(Buffer.from(c)));
+      anyBody.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+      anyBody.on("error", reject);
+    });
+  }
+
+  return "";
+}
 /** R2에서 텍스트 객체를 가져오기 */
 export async function getR2Text(key: string) {
   const obj = await r2.send(

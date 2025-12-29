@@ -1,5 +1,6 @@
 import { Context } from "hono";
-import { ZodError, type SafeParseReturnType } from "zod";
+import { ZodError } from "zod";
+import { SafeParseReturnType } from "zod/v3";
 
 type ZodHookResult =
   | SafeParseReturnType<unknown, unknown>
